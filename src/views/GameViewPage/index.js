@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 
 import styles from './styles';
 
@@ -21,7 +21,8 @@ export default class GameViewPage extends Component {
     super(props);
 
     this.state = {
-      currentPlayer: 0
+      currentPlayer: 0,
+      gameWinner: -1
     };
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
@@ -33,23 +34,33 @@ export default class GameViewPage extends Component {
     this.bestSequenceBoard = slBoard.getCalculatedPathBoard();
   }
 
+  onGoBackPressed = () => {
+    this.props.navigation.goBack();
+  }
+
   onDiceRoll = (diceSequence) => {
     const currentPlayer = this.state.currentPlayer;
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
     const newPosition = this.executeDiceSequence(currentPlayerPosition, diceSequence);
 
+    const gameWinner = newPosition === 100 ? currentPlayer : -1;
+
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const nextPlayer = (currentPlayer + 1) % totalPlayers;
     this.setState({
       [`player${currentPlayer}Position`]: newPosition,
-      currentPlayer: nextPlayer
+      currentPlayer: nextPlayer,
+      gameWinner
     });
   };
 
   executeDiceSequence = (position, diceSequence) => {
     let newPosition = position;
     diceSequence.forEach((diceValue) => {
+      if (newPosition + diceValue > 100) {
+        return;
+      }
       newPosition += diceValue;
       const boardValue = boardData[newPosition];
       if (boardValue !== 0) {
@@ -92,9 +103,34 @@ export default class GameViewPage extends Component {
     return <BestSequenceView sequence={sequence} />;
   };
 
+  renderBackButton = () => (
+    <TouchableOpacity
+      style={styles.goBackButton}
+      onPress={this.onGoBackPressed}
+    >
+      <Text style={styles.goBackButtonText}>Go Back</Text>
+    </TouchableOpacity>
+  )
+
+  renderGameOver = () => {
+    const winnerPlayer = this.state.gameWinner;
+
+    return (
+      <View style={[styles.container, styles.gameOverContainer]}>
+        <Text style={styles.instructions}>Player {winnerPlayer + 1} won the game</Text>
+        {this.renderBackButton()}
+      </View>
+    );
+  }
+
   render() {
+    if (this.state.gameWinner > -1) {
+      return this.renderGameOver();
+    }
+
     return (
       <ScrollView style={styles.container}>
+        {this.renderBackButton()}
         {this.renderBestSequenceView()}
         {this.renderGameBoard()}
         {this.renderDefaultPositionView()}

@@ -9,8 +9,22 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF'
   },
+  gameOverContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  instructions: {
+    fontSize: 20,
+  },
+  goBackButton: {
+    padding: 20,
+  },
+  goBackButtonText: {
+    fontSize: 20,
+    textAlign: 'center',
+    color: 'dodgerblue'
+  },
   bestSequenceContainer: {
-    marginTop: 30,
     paddingHorizontal: 20,
   },
   bestSequenceLabel: {
