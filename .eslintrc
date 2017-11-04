@@ -1,0 +1,55 @@
+{
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "rules": {
+    "comma-dangle": ["error", { "functions": "never", "objects": "ignore", "imports": "ignore" }],
+    "eqeqeq": [2, "allow-null"],
+    "id-length": 0,
+    "strict": ["error", "global"],
+    "no-unused-expressions": [
+      2,
+      { "allowShortCircuit": true, "allowTernary": true }
+    ],
+    "no-unused-vars": ["error", { "args": "after-used" }],
+    "prefer-template": 0,
+    "max-len": [
+      "error",
+      {
+        "code": 100,
+        "ignoreStrings": true,
+        "ignoreUrls": true,
+        "ignoreTemplateLiterals": true
+      }
+    ],
+    "no-param-reassign": [2, { "props": false }],
+    "no-underscore-dangle": 0,
+    "new-cap": [
+      "error",
+      { "capIsNewExceptions": ["ImmutableMap", "ImmutableList"] }
+    ],
+    "no-nested-ternary": 0,
+    "no-return-assign": ["error", "except-parens"],
+    "prefer-destructuring": 0,
+    "object-curly-newline": 0,
+    "function-paren-newline": 0,
+
+    "jsx-a11y/click-events-have-key-events": 0,
+
+    "react/jsx-boolean-value": [1, "always"],
+    "react/prop-types": 0,
+    "react/prefer-stateless-function": 0,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/forbid-prop-types": 0,
+
+    "react-native/no-unused-styles": 2
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "plugins": ["react", "react-native"],
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}
