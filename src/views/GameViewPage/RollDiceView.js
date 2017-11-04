@@ -23,6 +23,7 @@ class RollDiceView extends Component {
       this.diceSequence.push(6);
     } else {
       this.props.onDiceRoll([...this.diceSequence, diceValue]);
+      this.diceSequence = [];
     }
   }
 

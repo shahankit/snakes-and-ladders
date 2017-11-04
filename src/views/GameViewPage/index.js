@@ -50,7 +50,7 @@ export default class GameViewPage extends Component {
   executeDiceSequence = (position, diceSequence) => {
     let newPosition = position;
     diceSequence.forEach((diceValue) => {
-      newPosition = position + diceValue;
+      newPosition += diceValue;
       const boardValue = boardData[newPosition];
       if (boardValue !== 0) {
         newPosition = Math.abs(boardValue);
