@@ -7,14 +7,13 @@ export default StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
-  welcome: {
+  startGameButton: {
+    padding: 20,
+  },
+  startGameButtonText: {
     fontSize: 20,
     textAlign: 'center',
-    margin: 10
+    margin: 10,
+    color: 'dodgerblue'
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5
-  }
 });
