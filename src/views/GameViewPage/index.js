@@ -26,17 +26,33 @@ export default class GameViewPage extends Component {
     };
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
+    const playReverse = this.props.navigation.state.params.playReverse;
+
+    const boardDataCopy = boardData.slice();
+    const actualBoardData = playReverse ? boardDataCopy.map(item => item * -1) : boardDataCopy;
+    const boardDataWithDummyPositions = [0, ...actualBoardData, 0];
+    this.boardData = boardDataWithDummyPositions;
+
     for (let i = 0; i < totalPlayers; i += 1) {
-      this.state[`player${i}Position`] = 0;
+      this.state[`player${i}Position`] = playReverse ? this.boardData.length - 1 : 0;
     }
 
-    const slBoard = new SLBoard(boardData);
+    const slBoard = new SLBoard(this.boardData, playReverse);
     this.bestSequenceBoard = slBoard.getCalculatedPathBoard();
+  }
+
+  onPlayCurrentBestSequence = () => {
+    const currentPlayer = this.state.currentPlayer;
+    const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
+
+    const bestSequence = this.bestSequenceBoard[currentPlayerPosition];
+
+    this.onDiceRoll(bestSequence);
   }
 
   onGoBackPressed = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   onDiceRoll = (diceSequence) => {
     const currentPlayer = this.state.currentPlayer;
@@ -44,7 +60,11 @@ export default class GameViewPage extends Component {
 
     const newPosition = this.executeDiceSequence(currentPlayerPosition, diceSequence);
 
-    const gameWinner = newPosition === 100 ? currentPlayer : -1;
+    const playReverse = this.props.navigation.state.params.playReverse;
+    const winningCondition = playReverse
+      ? newPosition === 1
+      : newPosition === this.boardData.length - 2;
+    const gameWinner = winningCondition ? currentPlayer : -1;
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const nextPlayer = (currentPlayer + 1) % totalPlayers;
@@ -57,12 +77,15 @@ export default class GameViewPage extends Component {
 
   executeDiceSequence = (position, diceSequence) => {
     let newPosition = position;
+    const playReverse = this.props.navigation.state.params.playReverse;
     diceSequence.forEach((diceValue) => {
-      if (newPosition + diceValue > 100) {
+      const finalValue = playReverse ? newPosition - diceValue : newPosition + diceValue;
+      const edgeCondition = playReverse ? finalValue < 1 : finalValue > this.boardData.length - 2;
+      if (edgeCondition) {
         return;
       }
-      newPosition += diceValue;
-      const boardValue = boardData[newPosition];
+      newPosition = finalValue;
+      const boardValue = this.boardData[newPosition];
       if (boardValue !== 0) {
         newPosition = Math.abs(boardValue);
       }
@@ -74,9 +97,13 @@ export default class GameViewPage extends Component {
   renderDefaultPositionView = () => {
     const players = [];
     const totalPlayers = this.props.navigation.state.params.numPlayers;
+    const playReverse = this.props.navigation.state.params.playReverse;
     for (let i = 0; i < totalPlayers; i += 1) {
       const playerPosition = this.state[`player${i}Position`];
-      if (playerPosition === 0) {
+      const baseCondition = playReverse
+        ? playerPosition === this.boardData.length - 1
+        : playerPosition === 0;
+      if (baseCondition) {
         players.push(i);
       }
     }
@@ -92,7 +119,7 @@ export default class GameViewPage extends Component {
       playerPositions.push(playerPosition);
     }
 
-    return <GameBoard boardData={boardData} playerPositions={playerPositions} />;
+    return <GameBoard boardData={this.boardData} playerPositions={playerPositions} />;
   };
 
   renderBestSequenceView = () => {
@@ -100,17 +127,19 @@ export default class GameViewPage extends Component {
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
     const sequence = this.bestSequenceBoard[currentPlayerPosition];
-    return <BestSequenceView sequence={sequence} />;
+    return (
+      <BestSequenceView
+        sequence={sequence}
+        onPlayCurrentBestSequence={this.onPlayCurrentBestSequence}
+      />
+    );
   };
 
   renderBackButton = () => (
-    <TouchableOpacity
-      style={styles.goBackButton}
-      onPress={this.onGoBackPressed}
-    >
-      <Text style={styles.goBackButtonText}>Go Back</Text>
+    <TouchableOpacity style={styles.button} onPress={this.onGoBackPressed}>
+      <Text style={styles.buttonText}>Go Back</Text>
     </TouchableOpacity>
-  )
+  );
 
   renderGameOver = () => {
     const winnerPlayer = this.state.gameWinner;
@@ -121,7 +150,7 @@ export default class GameViewPage extends Component {
         {this.renderBackButton()}
       </View>
     );
-  }
+  };
 
   render() {
     if (this.state.gameWinner > -1) {

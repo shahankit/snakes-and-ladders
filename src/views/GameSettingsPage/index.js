@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity, Switch } from 'react-native';
 
 import styles from './styles';
 
@@ -11,14 +11,19 @@ export default class GameSettingsPage extends Component {
     headerBackTitle: 'Settings'
   };
 
-  state = { numPlayers: 2 };
+  state = { numPlayers: 2, playReverse: false };
 
   onStartGamePressed = () => {
     const { navigate } = this.props.navigation;
-    navigate('GameView', { numPlayers: this.state.numPlayers });
+    navigate('GameView', {
+      numPlayers: this.state.numPlayers,
+      playReverse: this.state.playReverse
+    });
   };
 
   onNumPlayersSelected = numPlayers => () => this.setState({ numPlayers })
+
+  onPlayReverseSwitchChange = playReverse => this.setState({ playReverse })
 
   renderNumPlayersSelector = (item) => {
     const selectedNumPlayers = this.state.numPlayers;
@@ -51,6 +56,10 @@ export default class GameSettingsPage extends Component {
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Number of players</Text>
           {numPlayersCount.map(this.renderNumPlayersSelector)}
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Play Reverse</Text>
+          <Switch onTintColor="dodgerblue" value={this.state.playReverse} onValueChange={this.onPlayReverseSwitchChange} />
         </View>
         <TouchableOpacity
           style={styles.startGameButton}

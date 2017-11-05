@@ -5,11 +5,12 @@ const windowWidth = Dimensions.get('window').width;
 export default StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 30,
     alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
   inputContainer: {
+    marginTop: 20,
     paddingHorizontal: 20,
     width: windowWidth,
     flexDirection: 'row',

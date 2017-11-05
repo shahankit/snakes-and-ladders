@@ -38,7 +38,7 @@ class GameBoard extends Component {
 
     let boardCells = [];
 
-    for (let i = boardData.length - 1; i > 0; i -= 10) {
+    for (let i = boardData.length - 2; i > 0; i -= 10) {
       const rowStartIndex = i - 9;
       const boardRow = boardData.slice(rowStartIndex, rowStartIndex + 10);
       const showReverse = (i / 10) % 2 === 0;

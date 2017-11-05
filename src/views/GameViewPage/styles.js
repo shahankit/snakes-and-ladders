@@ -7,7 +7,8 @@ const cellSize = (windowWidth - 3) / 10;
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF'
+    backgroundColor: '#F5FCFF',
+    paddingTop: 10,
   },
   gameOverContainer: {
     alignItems: 'center',
@@ -16,16 +17,21 @@ export default StyleSheet.create({
   instructions: {
     fontSize: 20,
   },
-  goBackButton: {
-    padding: 20,
+  button: {
+    padding: 10,
   },
-  goBackButtonText: {
-    fontSize: 20,
+  buttonText: {
+    fontSize: 16,
     textAlign: 'center',
     color: 'dodgerblue'
   },
   bestSequenceContainer: {
     paddingHorizontal: 20,
+  },
+  bestSequenceLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   bestSequenceLabel: {
     fontSize: 16,

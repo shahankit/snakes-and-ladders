@@ -1,6 +1,12 @@
 export default class SLBoard {
-  constructor(boardData) {
-    this.boardData = boardData;
+  constructor(boardData, reversed = false) {
+    this.boardData = boardData.slice();
+    this.reversed = reversed;
+    // if (reversed) {
+    //   const reversedBoard = this.boardData.slice(1).reverse();
+    //   this.boardData = [0, ...reversedBoard];
+    // }
+
     this.boardPathLengthData = [];
   }
 
@@ -10,7 +16,9 @@ export default class SLBoard {
     }
 
     const boardLength = this.boardData.length;
-    if (startIndex === (boardLength - 1)) {
+    const reversed = this.reversed;
+    const destinationIndex = reversed ? 1 : boardLength - 2;
+    if (startIndex === destinationIndex) {
       return [];
     }
 
@@ -18,8 +26,16 @@ export default class SLBoard {
     let minPath = [];
     let minEdgeIndex = -1;
 
-    for (let edgeIndex = startIndex + 6; edgeIndex > startIndex; edgeIndex -= 1) {
-      if (edgeIndex >= boardLength) {
+    const firstIndex = reversed ? startIndex - 1 : startIndex + 1;
+    const lastIndex = reversed ? startIndex - 7 : startIndex + 7;
+
+    for (
+      let edgeIndex = firstIndex;
+      edgeIndex !== lastIndex;
+      reversed ? (edgeIndex -= 1) : (edgeIndex += 1)
+    ) {
+      const isInvalidIndex = reversed ? edgeIndex < destinationIndex : edgeIndex > destinationIndex;
+      if (isInvalidIndex) {
         continue;
       }
 
@@ -51,13 +67,26 @@ export default class SLBoard {
       throw new Error(`Invalid board configuration. No available path from ${startIndex}`);
     }
 
-    return [(minEdgeIndex - startIndex), ...minPath];
+    const diceValue = reversed ? (startIndex - minEdgeIndex) : (minEdgeIndex - startIndex);
+    return [diceValue, ...minPath];
   }
 
   getCalculatedPathBoard() {
     if (this.boardPathLengthData.length === 0) {
-      const minIndexFromtZero = this.getMininumPathFromIndex(0);
-      this.boardPathLengthData[0] = minIndexFromtZero;
+      const reversed = this.reversed;
+      const startIndex = reversed ? this.boardData.length - 1 : 0;
+
+      const minPathFromStartIndex = this.getMininumPathFromIndex(startIndex);
+      this.boardPathLengthData[startIndex] = minPathFromStartIndex;
+
+      // const reversed = this.reversed;
+      // if (reversed) {
+      //   const boardPathLengthDataReversed = this.boardPathLengthData.slice(1).reverse();
+      //   this.boardPathLengthData = [
+      //     minPathFromZero,
+      //     ...boardPathLengthDataReversed
+      //   ];
+      // }
     }
 
     return this.boardPathLengthData;
