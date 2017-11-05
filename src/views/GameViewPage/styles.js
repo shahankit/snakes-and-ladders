@@ -159,4 +159,7 @@ export default StyleSheet.create({
   boardCellPlayerText: {
     fontSize: 8,
   },
+  emptyBottomView: {
+    height: 30,
+  },
 });

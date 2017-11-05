@@ -36,8 +36,8 @@ class Player extends Component {
 
 Player.propTypes = {
   index: PropTypes.number.isRequired,
-  style: View.propTypes.style,
-  textStyle: Text.propTypes.style,
+  style: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+  textStyle: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
 };
 
 Player.defaultProps = {

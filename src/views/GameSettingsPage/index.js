@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity, Switch } from 'react-native';
+import { Text, View, TouchableOpacity, Switch, Platform } from 'react-native';
 
 import styles from './styles';
 
@@ -21,9 +21,9 @@ export default class GameSettingsPage extends Component {
     });
   };
 
-  onNumPlayersSelected = numPlayers => () => this.setState({ numPlayers })
+  onNumPlayersSelected = numPlayers => () => this.setState({ numPlayers });
 
-  onPlayReverseSwitchChange = playReverse => this.setState({ playReverse })
+  onPlayReverseSwitchChange = playReverse => this.setState({ playReverse });
 
   renderNumPlayersSelector = (item) => {
     const selectedNumPlayers = this.state.numPlayers;
@@ -39,16 +39,14 @@ export default class GameSettingsPage extends Component {
         <Text
           style={[
             styles.numPlayersButtonText,
-            item === selectedNumPlayers
-              ? styles.numPlayersButtonTextSelected
-              : null
+            item === selectedNumPlayers ? styles.numPlayersButtonTextSelected : null
           ]}
         >
           {item}
         </Text>
       </TouchableOpacity>
     );
-  }
+  };
 
   render() {
     return (
@@ -59,12 +57,17 @@ export default class GameSettingsPage extends Component {
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Play Reverse</Text>
-          <Switch onTintColor="dodgerblue" value={this.state.playReverse} onValueChange={this.onPlayReverseSwitchChange} />
+          <Switch
+            thumbTintColor={Platform.select({
+              ios: undefined,
+              android: 'dodgerblue'
+            })}
+            onTintColor="dodgerblue"
+            value={this.state.playReverse}
+            onValueChange={this.onPlayReverseSwitchChange}
+          />
         </View>
-        <TouchableOpacity
-          style={styles.startGameButton}
-          onPress={this.onStartGamePressed}
-        >
+        <TouchableOpacity style={styles.startGameButton} onPress={this.onStartGamePressed}>
           <Text style={styles.startGameButtonText}>Start Game</Text>
         </TouchableOpacity>
       </View>
