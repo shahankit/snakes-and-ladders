@@ -1,11 +1,9 @@
+const VALID_INDICES = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17];
+
 export default class SLBoard {
   constructor(boardData, reversed = false) {
     this.boardData = boardData.slice();
     this.reversed = reversed;
-    // if (reversed) {
-    //   const reversedBoard = this.boardData.slice(1).reverse();
-    //   this.boardData = [0, ...reversedBoard];
-    // }
 
     this.boardPathLengthData = [];
   }
@@ -26,17 +24,14 @@ export default class SLBoard {
     let minPath = [];
     let minEdgeIndex = -1;
 
-    const firstIndex = reversed ? startIndex - 1 : startIndex + 1;
-    const lastIndex = reversed ? startIndex - 7 : startIndex + 7;
+    const nextEdgeIndices = VALID_INDICES.map(
+      offset => (reversed ? startIndex - offset : startIndex + offset)
+    );
 
-    for (
-      let edgeIndex = firstIndex;
-      edgeIndex !== lastIndex;
-      reversed ? (edgeIndex -= 1) : (edgeIndex += 1)
-    ) {
+    nextEdgeIndices.forEach((edgeIndex) => {
       const isInvalidIndex = reversed ? edgeIndex < destinationIndex : edgeIndex > destinationIndex;
       if (isInvalidIndex) {
-        continue;
+        return;
       }
 
       const boardValue = this.boardData[edgeIndex];
@@ -46,7 +41,7 @@ export default class SLBoard {
       let finalIndex = edgeIndex;
 
       if (isSnake) {
-        continue;
+        return;
       } else if (isLadder) {
         finalIndex = boardValue;
       }
@@ -55,20 +50,26 @@ export default class SLBoard {
       this.boardPathLengthData[finalIndex] = path;
       this.boardPathLengthData[edgeIndex] = path;
 
-      const pathThrowCount = path.length;
+      const diceValue = reversed ? startIndex - edgeIndex : edgeIndex - startIndex;
+      const pathThrowCount = path.length + Math.ceil(diceValue / 6);
       if (pathThrowCount < minPathThrowCount) {
         minPathThrowCount = pathThrowCount;
         minPath = path;
         minEdgeIndex = edgeIndex;
       }
-    }
+    });
 
     if (minPathThrowCount === Number.MAX_SAFE_INTEGER) {
       throw new Error(`Invalid board configuration. No available path from ${startIndex}`);
     }
 
-    const diceValue = reversed ? (startIndex - minEdgeIndex) : (minEdgeIndex - startIndex);
-    return [diceValue, ...minPath];
+    const diceValue = reversed ? startIndex - minEdgeIndex : minEdgeIndex - startIndex;
+    const diceValueArray = [];
+    for (let i = diceValue - 6; i > 0; i -= 6) {
+      diceValueArray.push(6);
+    }
+    diceValueArray.push(diceValue % 6);
+    return [...diceValueArray, ...minPath];
   }
 
   getCalculatedPathBoard() {
@@ -78,15 +79,6 @@ export default class SLBoard {
 
       const minPathFromStartIndex = this.getMininumPathFromIndex(startIndex);
       this.boardPathLengthData[startIndex] = minPathFromStartIndex;
-
-      // const reversed = this.reversed;
-      // if (reversed) {
-      //   const boardPathLengthDataReversed = this.boardPathLengthData.slice(1).reverse();
-      //   this.boardPathLengthData = [
-      //     minPathFromZero,
-      //     ...boardPathLengthDataReversed
-      //   ];
-      // }
     }
 
     return this.boardPathLengthData;
