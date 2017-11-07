@@ -48,50 +48,79 @@ export default class GameViewPage extends Component {
     const bestSequence = this.bestSequenceBoard[currentPlayerPosition];
 
     this.onDiceRoll(bestSequence);
-  }
+  };
 
   onGoBackPressed = () => {
     this.props.navigation.goBack();
   };
 
-  onDiceRoll = (diceSequence) => {
+  onDiceRoll = async (diceSequence) => {
     const currentPlayer = this.state.currentPlayer;
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
-    const newPosition = this.executeDiceSequence(currentPlayerPosition, diceSequence);
+    const positionIndices = this.executeDiceSequence(currentPlayerPosition, diceSequence);
 
+    await this.movePlayerToIndices(currentPlayer, positionIndices);
+
+    const finalPosition = positionIndices[positionIndices.length - 1];
     const playReverse = this.props.navigation.state.params.playReverse;
     const winningCondition = playReverse
-      ? newPosition === 1
-      : newPosition === this.boardData.length - 2;
+      ? finalPosition === 1
+      : finalPosition === this.boardData.length - 2;
     const gameWinner = winningCondition ? currentPlayer : -1;
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const nextPlayer = (currentPlayer + 1) % totalPlayers;
     this.setState({
-      [`player${currentPlayer}Position`]: newPosition,
+      // [`player${currentPlayer}Position`]: finalPosition,
       currentPlayer: nextPlayer,
       gameWinner
     });
   };
 
-  executeDiceSequence = (position, diceSequence) => {
-    let newPosition = position;
-    const playReverse = this.props.navigation.state.params.playReverse;
-    diceSequence.forEach((diceValue) => {
-      const finalValue = playReverse ? newPosition - diceValue : newPosition + diceValue;
-      const edgeCondition = playReverse ? finalValue < 1 : finalValue > this.boardData.length - 2;
-      if (edgeCondition) {
-        return;
+  movePlayerToIndices = (playerIndex, positionIndices) =>
+    new Promise(async (resolve) => {
+      const currentPosition = this.state[`player${playerIndex}Position`];
+      const firstPosition = positionIndices[0];
+      const playReverse = this.props.navigation.state.params.playReverse;
+      for (
+        let i = playReverse ? currentPosition - 1 : currentPosition + 1;
+        playReverse ? i >= firstPosition : i <= firstPosition;
+        playReverse ? (i -= 1) : (i += 1)
+      ) {
+        await this.updatePlayerPosition(playerIndex, i);
       }
-      newPosition = finalValue;
-      const boardValue = this.boardData[newPosition];
-      if (boardValue !== 0) {
-        newPosition = Math.abs(boardValue);
+      if (positionIndices.length > 1) {
+        const finalPosition = positionIndices[1];
+        await this.updatePlayerPosition(playerIndex, finalPosition);
       }
+
+      resolve();
     });
 
-    return newPosition;
+  updatePlayerPosition = (playerIndex, position) =>
+    new Promise(resolve =>
+      this.setState(
+        {
+          [`player${playerIndex}Position`]: position
+        },
+        () => setTimeout(resolve, 300)
+      )
+    );
+
+  executeDiceSequence = (position, diceSequence) => {
+    const totalOffset = diceSequence.reduce((acc, curr) => acc + curr, 0);
+    const playReverse = this.props.navigation.state.params.playReverse;
+    const newPosition = playReverse ? position - totalOffset : position + totalOffset;
+
+    const positionIndices = [newPosition];
+
+    const boardValue = this.boardData[newPosition];
+    if (boardValue !== 0) {
+      positionIndices.push(Math.abs(boardValue));
+    }
+
+    return positionIndices;
   };
 
   renderDefaultPositionView = () => {
@@ -126,7 +155,7 @@ export default class GameViewPage extends Component {
     const currentPlayer = this.state.currentPlayer;
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
-    const sequence = this.bestSequenceBoard[currentPlayerPosition];
+    const sequence = this.bestSequenceBoard[currentPlayerPosition] || [];
     return (
       <BestSequenceView
         sequence={sequence}
