@@ -29,7 +29,16 @@ export default class GameViewPage extends Component {
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const playReverse = this.props.navigation.state.params.playReverse;
 
-    this.boardData = Object.assign({}, boardData);
+    let newBoardData = {};
+    if (playReverse) {
+      Object.keys(boardData).forEach((key) => {
+        const value = boardData[key];
+        newBoardData[value] = parseInt(key);
+      });
+    } else {
+      newBoardData = Object.assign({}, boardData);
+    }
+    this.boardData = newBoardData;
 
     this.boardMaxPosition = 100;
 
@@ -145,7 +154,7 @@ export default class GameViewPage extends Component {
     for (let i = 0; i < totalPlayers; i += 1) {
       const playerPosition = this.state[`player${i}Position`];
       const baseCondition = playReverse
-        ? playerPosition === this.boardMaxPosition - 1
+        ? playerPosition === this.boardMaxPosition + 1
         : playerPosition === 0;
       if (baseCondition) {
         players.push(i);
@@ -157,6 +166,7 @@ export default class GameViewPage extends Component {
 
   renderGameBoard = () => {
     const totalPlayers = this.props.navigation.state.params.numPlayers;
+    const playReverse = this.props.navigation.state.params.playReverse;
     const playerPositions = [];
     for (let i = 0; i < totalPlayers; i += 1) {
       const playerPosition = this.state[`player${i}Position`];
@@ -168,6 +178,7 @@ export default class GameViewPage extends Component {
         boardMaxPosition={this.boardMaxPosition}
         boardData={this.boardData}
         playerPositions={playerPositions}
+        playReverse={playReverse}
       />
     );
   };

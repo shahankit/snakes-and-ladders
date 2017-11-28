@@ -29,7 +29,16 @@ class GameBoard extends Component {
   renderCell = (cell) => {
     const { value, index } = cell;
     const players = this.cellPlayersMapping[index] || [];
-    return <BoardCell key={index} cellValue={value} index={index} players={players} />;
+    const playReverse = this.props.playReverse;
+    return (
+      <BoardCell
+        key={index}
+        cellValue={value}
+        index={index}
+        players={players}
+        playReverse={playReverse}
+      />
+    );
   };
 
   renderBoardCells = () => {
@@ -61,6 +70,7 @@ GameBoard.propTypes = {
   boardData: PropTypes.object.isRequired,
   playerPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
   boardMaxPosition: PropTypes.number.isRequired,
+  playReverse: PropTypes.bool.isRequired
 };
 
 export default GameBoard;

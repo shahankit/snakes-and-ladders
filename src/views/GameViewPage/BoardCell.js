@@ -21,9 +21,9 @@ class BoardCell extends Component {
   };
 
   render() {
-    const { index, cellValue } = this.props;
-    const isLadder = cellValue > index;
-    const isSnake = cellValue < index;
+    const { index, cellValue, playReverse } = this.props;
+    const isLadder = playReverse ? cellValue < index : cellValue > index;
+    const isSnake = playReverse ? cellValue > index : cellValue < index;
 
     const containerStyle = [styles.cellContainer];
     if (isLadder) {

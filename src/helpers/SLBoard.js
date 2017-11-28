@@ -4,46 +4,21 @@ const VALID_INDICES = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17];
 export default class SLBoard {
   constructor(boardData, reversed = false, boardLength) {
     this.boardLength = boardLength;
-    this.boardData = Object.assign({}, boardData);
-
     this.reversed = reversed;
+    this.boardData = Object.assign({}, boardData);
 
     this.boardPathLength = [];
   }
 
-  getValidIndices(index) {
-    const allIndices = VALID_INDICES.map(item => index - item);
-    const validIndices = [];
-
-    allIndices.forEach((item) => {
-      if (item < 1) {
-        return;
-      }
-
-      const jumpIndex = this.boardData[item];
-      const isSnake = jumpIndex < item;
-
-      if (isSnake) {
-        return;
-      }
-
-      const isLadder = jumpIndex > item;
-      if (isLadder) {
-        validIndices.push(jumpIndex);
-      }
-
-      validIndices.push(item);
-    });
-
-    return validIndices;
-  }
-
   getMinimumPathArray() {
     const boardLength = this.boardLength;
+    const reversed = this.reversed;
+
+    const winningPosition = reversed ? 1 : boardLength;
 
     const indexStack = [{
-      fromIndex: boardLength,
-      toIndex: boardLength,
+      fromIndex: winningPosition,
+      toIndex: winningPosition,
       diceValue: 0
     }];
 
@@ -54,7 +29,7 @@ export default class SLBoard {
 
       // set path/pathLength for fromIndex
       // // if path from toIndex does not exists, the skip
-      // // if fromIndex == boardLength, set as [] (basecase)
+      // // if fromIndex == winningPosition, set as [] (basecase)
       // // if ladder exists from fromIndex to toIndex, set as pathLength[toIndex]
       // // if pathLength[fromIndex] does not exist, set as 1 + pathLength[toIndex]
       // // if pathLength[fromIndex] > (1 + pathLength[toIndex]), set as 1 + pathLength[toIndex]
@@ -62,8 +37,8 @@ export default class SLBoard {
       let pathLengthUpdated = false;
 
       // set path/pathLength for fromIndex
-      if (fromIndex === boardLength) {
-        // if fromIndex == boardLength, set as [] (basecase)
+      if (fromIndex === winningPosition) {
+        // if fromIndex == winningPosition, set as [] (basecase)
         this.boardPathLength[fromIndex] = [];
         pathLengthUpdated = true;
       } else if (!this.boardPathLength[toIndex]) {
@@ -115,90 +90,17 @@ export default class SLBoard {
         newToIndex = fromIndex;
       }
 
-      const childNodes = VALID_INDICES.map(indexOffset => fromIndex - indexOffset).filter(item => item > -1);
+      const childNodes =
+        VALID_INDICES
+          .map(indexOffset => (reversed ? fromIndex + indexOffset : fromIndex - indexOffset))
+          .filter(item => (reversed ? item <= (boardLength + 1) : item >= 0));
       childNodes.forEach((nodeIndex) => {
         indexStack.unshift({
           fromIndex: nodeIndex,
           toIndex: newToIndex,
-          diceValue: fromIndex - nodeIndex
+          diceValue: reversed ? nodeIndex - fromIndex : fromIndex - nodeIndex
         });
       });
-    }
-
-    return this.boardPathLength;
-  }
-
-  getMininumPathFromIndex(startIndex) {
-    if (this.boardPathLength[startIndex]) {
-      return this.boardPathLength[startIndex];
-    }
-
-    const boardLength = this.boardData.length;
-    const reversed = this.reversed;
-    const destinationIndex = reversed ? 1 : boardLength - 2;
-    if (startIndex === destinationIndex) {
-      return [];
-    }
-
-    let minPathThrowCount = Number.MAX_SAFE_INTEGER;
-    let minPath = [];
-    let minEdgeIndex = -1;
-
-    const nextEdgeIndices = VALID_INDICES.map(
-      offset => (reversed ? startIndex - offset : startIndex + offset)
-    );
-
-    nextEdgeIndices.forEach((edgeIndex) => {
-      const isInvalidIndex = reversed ? edgeIndex < destinationIndex : edgeIndex > destinationIndex;
-      if (isInvalidIndex) {
-        return;
-      }
-
-      const boardValue = this.boardData[edgeIndex];
-      const isSnake = boardValue < 0;
-      const isLadder = boardValue > 0;
-
-      let finalIndex = edgeIndex;
-
-      if (isSnake) {
-        return;
-      } else if (isLadder) {
-        finalIndex = boardValue;
-      }
-
-      const path = this.getMininumPathFromIndex(finalIndex);
-      this.boardPathLength[finalIndex] = path;
-      this.boardPathLength[edgeIndex] = path;
-
-      const diceValue = reversed ? startIndex - edgeIndex : edgeIndex - startIndex;
-      const pathThrowCount = path.length + Math.ceil(diceValue / 6);
-      if (pathThrowCount < minPathThrowCount) {
-        minPathThrowCount = pathThrowCount;
-        minPath = path;
-        minEdgeIndex = edgeIndex;
-      }
-    });
-
-    if (minPathThrowCount === Number.MAX_SAFE_INTEGER) {
-      throw new Error(`Invalid board configuration. No available path from ${startIndex}`);
-    }
-
-    const diceValue = reversed ? startIndex - minEdgeIndex : minEdgeIndex - startIndex;
-    const diceValueArray = [];
-    for (let i = diceValue - 6; i > 0; i -= 6) {
-      diceValueArray.push(6);
-    }
-    diceValueArray.push(diceValue % 6);
-    return [...diceValueArray, ...minPath];
-  }
-
-  getCalculatedPathBoard() {
-    if (this.boardPathLength.length === 0) {
-      const reversed = this.reversed;
-      const startIndex = reversed ? this.boardData.length - 1 : 0;
-
-      const minPathFromStartIndex = this.getMininumPathFromIndex(startIndex);
-      this.boardPathLength[startIndex] = minPathFromStartIndex;
     }
 
     return this.boardPathLength;
