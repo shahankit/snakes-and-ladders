@@ -9,6 +9,7 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF',
     paddingTop: 10,
+    paddingBottom: 30,
   },
   gameOverContainer: {
     alignItems: 'center',
@@ -161,8 +162,5 @@ export default StyleSheet.create({
   },
   boardCellPlayerText: {
     fontSize: 8,
-  },
-  emptyBottomView: {
-    height: 30,
   },
 });

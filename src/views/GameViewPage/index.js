@@ -215,7 +215,6 @@ export default class GameViewPage extends Component {
         {this.renderDefaultPositionView()}
         <CurrentPlayerView index={this.state.currentPlayer} />
         <RollDiceView disableDiceRoll={this.state.disableDiceRoll} onDiceRoll={this.onDiceRoll} />
-        <View style={styles.emptyBottomView} />
       </ScrollView>
     );
   }
