@@ -5,11 +5,19 @@ import PropTypes from 'prop-types';
 import styles from './styles';
 
 class BestSequenceView extends Component {
-  renderSequenceItem = value => (
-    <View style={styles.sequenceItem}>
-      <Text style={styles.sequenceItemText}>{value}</Text>
-    </View>
-  );
+  renderSequenceItem = (diceValue) => {
+    const diceValueArray = [];
+    for (let i = diceValue - 6; i > 0; i -= 6) {
+      diceValueArray.push(6);
+    }
+    diceValueArray.push(diceValue % 6);
+
+    return (
+      <View style={styles.sequenceItem}>
+        <Text style={styles.sequenceItemText}>{diceValueArray.join(' ')}</Text>
+      </View>
+    );
+  }
 
   render() {
     return (

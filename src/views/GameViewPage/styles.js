@@ -38,7 +38,7 @@ export default StyleSheet.create({
   },
   sequenceItem: {
     height: 20,
-    width: 20,
+    paddingHorizontal: 4,
     borderColor: 'gray',
     borderWidth: 1,
     backgroundColor: 'lightgray',
@@ -129,6 +129,9 @@ export default StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  disabledRollDiceButton: {
+    backgroundColor: 'red'
   },
   diceTextContainer: {
     marginTop: 8,

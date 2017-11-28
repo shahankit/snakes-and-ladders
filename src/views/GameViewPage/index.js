@@ -22,32 +22,41 @@ export default class GameViewPage extends Component {
 
     this.state = {
       currentPlayer: 0,
-      gameWinner: -1
+      gameWinner: -1,
+      disableDiceRoll: false
     };
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const playReverse = this.props.navigation.state.params.playReverse;
 
-    const boardDataCopy = boardData.slice();
-    const actualBoardData = playReverse ? boardDataCopy.map(item => item * -1) : boardDataCopy;
-    const boardDataWithDummyPositions = [0, ...actualBoardData, 0];
-    this.boardData = boardDataWithDummyPositions;
+    this.boardData = Object.assign({}, boardData);
+
+    this.boardMaxPosition = 100;
 
     for (let i = 0; i < totalPlayers; i += 1) {
-      this.state[`player${i}Position`] = playReverse ? this.boardData.length - 1 : 0;
+      this.state[`player${i}Position`] = playReverse ? this.boardMaxPosition + 1 : 0;
     }
 
-    const slBoard = new SLBoard(this.boardData, playReverse);
-    this.bestSequenceBoard = slBoard.getCalculatedPathBoard();
+    const slBoard = new SLBoard(this.boardData, playReverse, 100);
+    this.bestSequenceBoard = slBoard.getMinimumPathArray();
+    console.log('bestSequenceBoard', this.bestSequenceBoard);
   }
 
-  onPlayCurrentBestSequence = () => {
+  onPlayCurrentBestSequence = async () => {
     const currentPlayer = this.state.currentPlayer;
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
     const bestSequence = this.bestSequenceBoard[currentPlayerPosition];
 
-    this.onDiceRoll(bestSequence);
+    this.setState({ disableDiceRoll: true });
+
+    for (let i = 0; i < bestSequence.length - 1; i += 1) {
+      const diceSequence = [bestSequence[i]];
+      const positionIndices = this.executeDiceSequence(currentPlayerPosition, diceSequence);
+      await this.movePlayerToIndices(currentPlayer, positionIndices);
+    }
+
+    this.onDiceRoll([bestSequence[bestSequence.length - 1]]);
   };
 
   onGoBackPressed = () => {
@@ -55,6 +64,7 @@ export default class GameViewPage extends Component {
   };
 
   onDiceRoll = async (diceSequence) => {
+    this.setState({ disableDiceRoll: true });
     const currentPlayer = this.state.currentPlayer;
     const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
 
@@ -66,13 +76,13 @@ export default class GameViewPage extends Component {
     const playReverse = this.props.navigation.state.params.playReverse;
     const winningCondition = playReverse
       ? finalPosition === 1
-      : finalPosition === this.boardData.length - 2;
+      : finalPosition === this.boardMaxPosition;
     const gameWinner = winningCondition ? currentPlayer : -1;
 
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const nextPlayer = (currentPlayer + 1) % totalPlayers;
     this.setState({
-      // [`player${currentPlayer}Position`]: finalPosition,
+      disableDiceRoll: false,
       currentPlayer: nextPlayer,
       gameWinner
     });
@@ -104,7 +114,7 @@ export default class GameViewPage extends Component {
         {
           [`player${playerIndex}Position`]: position
         },
-        () => setTimeout(resolve, 300)
+        () => setTimeout(resolve, 200)
       )
     );
 
@@ -113,11 +123,16 @@ export default class GameViewPage extends Component {
     const playReverse = this.props.navigation.state.params.playReverse;
     const newPosition = playReverse ? position - totalOffset : position + totalOffset;
 
+    const isInvalidPosition = playReverse ? newPosition < 1 : newPosition > this.boardMaxPosition;
+    if (isInvalidPosition) {
+      return [position];
+    }
+
     const positionIndices = [newPosition];
 
     const boardValue = this.boardData[newPosition];
-    if (boardValue !== 0) {
-      positionIndices.push(Math.abs(boardValue));
+    if (boardValue) {
+      positionIndices.push(boardValue);
     }
 
     return positionIndices;
@@ -130,7 +145,7 @@ export default class GameViewPage extends Component {
     for (let i = 0; i < totalPlayers; i += 1) {
       const playerPosition = this.state[`player${i}Position`];
       const baseCondition = playReverse
-        ? playerPosition === this.boardData.length - 1
+        ? playerPosition === this.boardMaxPosition - 1
         : playerPosition === 0;
       if (baseCondition) {
         players.push(i);
@@ -148,7 +163,13 @@ export default class GameViewPage extends Component {
       playerPositions.push(playerPosition);
     }
 
-    return <GameBoard boardData={this.boardData} playerPositions={playerPositions} />;
+    return (
+      <GameBoard
+        boardMaxPosition={this.boardMaxPosition}
+        boardData={this.boardData}
+        playerPositions={playerPositions}
+      />
+    );
   };
 
   renderBestSequenceView = () => {
@@ -193,7 +214,7 @@ export default class GameViewPage extends Component {
         {this.renderGameBoard()}
         {this.renderDefaultPositionView()}
         <CurrentPlayerView index={this.state.currentPlayer} />
-        <RollDiceView onDiceRoll={this.onDiceRoll} />
+        <RollDiceView disableDiceRoll={this.state.disableDiceRoll} onDiceRoll={this.onDiceRoll} />
         <View style={styles.emptyBottomView} />
       </ScrollView>
     );

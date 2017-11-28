@@ -22,8 +22,8 @@ class BoardCell extends Component {
 
   render() {
     const { index, cellValue } = this.props;
-    const isLadder = cellValue > 0;
-    const isSnake = cellValue < 0;
+    const isLadder = cellValue > index;
+    const isSnake = cellValue < index;
 
     const containerStyle = [styles.cellContainer];
     if (isLadder) {
@@ -41,7 +41,7 @@ class BoardCell extends Component {
     if (isLadder) {
       value = `+${cellValue}`;
     } else if (isSnake) {
-      value = cellValue;
+      value = `-${cellValue}`;
     } else {
       value = index;
     }
@@ -57,8 +57,12 @@ class BoardCell extends Component {
 
 BoardCell.propTypes = {
   index: PropTypes.number.isRequired,
-  cellValue: PropTypes.number.isRequired,
+  cellValue: PropTypes.number,
   players: PropTypes.arrayOf(PropTypes.number).isRequired
+};
+
+BoardCell.defaultProps = {
+  cellValue: undefined
 };
 
 export default BoardCell;

@@ -26,24 +26,26 @@ class GameBoard extends Component {
     });
   }
 
-  renderCell = (rowStartIndex, showReverse) => (cell, index) => {
-    const itemIndex = showReverse ? rowStartIndex + 9 - index : rowStartIndex + index;
-
-    const players = this.cellPlayersMapping[itemIndex] || [];
-    return <BoardCell key={itemIndex} cellValue={cell} index={itemIndex} players={players} />;
+  renderCell = (cell) => {
+    const { value, index } = cell;
+    const players = this.cellPlayersMapping[index] || [];
+    return <BoardCell key={index} cellValue={value} index={index} players={players} />;
   };
 
   renderBoardCells = () => {
     const boardData = this.props.boardData;
 
     let boardCells = [];
+    const boardMaxPosition = this.props.boardMaxPosition;
 
-    for (let i = boardData.length - 2; i > 0; i -= 10) {
-      const rowStartIndex = i - 9;
-      const boardRow = boardData.slice(rowStartIndex, rowStartIndex + 10);
-      const showReverse = (i / 10) % 2 === 0;
+    for (let i = boardMaxPosition; i > 0; i -= 10) {
+      const boardRow = [];
+      for (let j = i; j > i - 10 && j > 0; j -= 1) {
+        boardRow.push({ index: j, value: boardData[j] });
+      }
+      const showReverse = ((boardMaxPosition - i) / 10) % 2 !== 0;
       showReverse && boardRow.reverse();
-      const boardRowCells = boardRow.map(this.renderCell(rowStartIndex, showReverse));
+      const boardRowCells = boardRow.map(this.renderCell);
       boardCells = boardCells.concat(boardRowCells);
     }
 
@@ -56,8 +58,9 @@ class GameBoard extends Component {
 }
 
 GameBoard.propTypes = {
-  boardData: PropTypes.arrayOf(PropTypes.number).isRequired,
-  playerPositions: PropTypes.arrayOf(PropTypes.number).isRequired
+  boardData: PropTypes.object.isRequired,
+  playerPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
+  boardMaxPosition: PropTypes.number.isRequired,
 };
 
 export default GameBoard;

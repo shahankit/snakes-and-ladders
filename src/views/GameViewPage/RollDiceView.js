@@ -30,12 +30,14 @@ class RollDiceView extends Component {
   render() {
     const diceValue = this.state.diceValue;
     const buttonValue = diceValue === 6 ? 'ROLL DICE AGAIN' : 'ROLL DICE';
+    const disableDiceRoll = this.props.disableDiceRoll;
 
     return (
       <View style={styles.rollDiceView}>
         <TouchableOpacity
-          style={styles.rollDiceButton}
+          style={[styles.rollDiceButton, disableDiceRoll ? styles.disabledRollDiceButton : null]}
           onPress={this.onRollDicePressed}
+          disabled={disableDiceRoll}
         >
           <Text style={styles.rollDiceText}>{buttonValue}</Text>
         </TouchableOpacity>
