@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 export default {
-  1: 38,
+  2: 38,
   4: 14,
   9: 31,
   16: 6,
@@ -23,7 +23,5 @@ export default {
 };
 
 // export default {
-//   2: 10,
-//   6: 4,
-//   7: 1
+//   2: 9
 // };

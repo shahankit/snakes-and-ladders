@@ -6,6 +6,8 @@ import styles from './styles';
 
 import Player from './Player';
 
+import SLBoard from '../../helpers/SLBoard';
+
 class BoardCell extends Component {
   renderPlayerItem = player => (
     <Player index={player} style={styles.boardCellPlayer} textStyle={styles.boardCellPlayerText} />
@@ -22,8 +24,8 @@ class BoardCell extends Component {
 
   render() {
     const { index, cellValue, playReverse } = this.props;
-    const isLadder = playReverse ? cellValue < index : cellValue > index;
-    const isSnake = playReverse ? cellValue > index : cellValue < index;
+    const isLadder = SLBoard.isLadder(index, cellValue, playReverse);
+    const isSnake = SLBoard.isSnake(index, cellValue, playReverse);
 
     const containerStyle = [styles.cellContainer];
     if (isLadder) {

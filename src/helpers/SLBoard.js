@@ -1,5 +1,5 @@
 const VALID_INDICES = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17];
-// const VALID_INDICES = [1, 2];
+// const VALID_INDICES = [1, 2, 3];
 
 export default class SLBoard {
   constructor(boardData, reversed = false, boardLength) {
@@ -8,6 +8,14 @@ export default class SLBoard {
     this.boardData = Object.assign({}, boardData);
 
     this.boardPathLength = [];
+  }
+
+  static isLadder(fromIndex, toIndex, reversed) {
+    return reversed ? toIndex < fromIndex : toIndex > fromIndex;
+  }
+
+  static isSnake(fromIndex, toIndex, reversed) {
+    return reversed ? toIndex > fromIndex : toIndex < fromIndex;
   }
 
   getMinimumPathArray() {
@@ -42,7 +50,7 @@ export default class SLBoard {
         this.boardPathLength[fromIndex] = [];
         pathLengthUpdated = true;
       } else if (!this.boardPathLength[toIndex]) {
-        // if path from toIndex does not exists, the skip
+        // if path from toIndex does not exists, the skip. Never try to find something from unknown.
         continue;
       } else if (this.boardData[fromIndex] === toIndex) {
         // if ladder exists from fromIndex to toIndex, set as pathLength[toIndex]
@@ -66,7 +74,8 @@ export default class SLBoard {
       const ladderNodes = [];
       Object.keys(this.boardData).forEach((key) => {
         const jumpIndex = this.boardData[key];
-        if (jumpIndex > parseInt(key) && jumpIndex === fromIndex) {
+        const isLadder = SLBoard.isLadder(parseInt(key), jumpIndex, reversed);
+        if (isLadder && jumpIndex === fromIndex) {
           ladderNodes.push(parseInt(key));
         }
       });
@@ -82,7 +91,8 @@ export default class SLBoard {
       // // if no snake from fromIndex, add children nodes with toIndex as selectedIndex (unshift)
       // // else add children nodes with toIndex as snakeIndex (unshift)
       let newToIndex = -1;
-      if (this.boardData[fromIndex] < fromIndex) {
+      const isSnake = SLBoard.isSnake(fromIndex, this.boardData[fromIndex], reversed);
+      if (isSnake) {
         // snake exists from fromIndex
         const snakeIndex = this.boardData[fromIndex];
         newToIndex = snakeIndex;

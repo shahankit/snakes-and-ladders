@@ -3,11 +3,20 @@ import { Text, View, TouchableOpacity } from 'react-native';
 
 import styles from './styles';
 
+// import SLBoard from '../../helpers/SLBoard';
+// import boardData from '../../helpers/boardData';
+
 export default class HomePage extends Component {
   static navigationOptions = {
     header: null,
     headerBackTitle: 'Home',
   };
+
+  // componentDidMount() {
+  //   const slBoard = new SLBoard(boardData, true, 100);
+  //   const bestSequenceBoard = slBoard.getMinimumPathArray();
+  //   console.log('bestSequenceBoard is', bestSequenceBoard);
+  // }
 
   onStartGamePressed = () => {
     const { navigate } = this.props.navigation;

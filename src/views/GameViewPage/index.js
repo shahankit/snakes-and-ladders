@@ -29,17 +29,7 @@ export default class GameViewPage extends Component {
     const totalPlayers = this.props.navigation.state.params.numPlayers;
     const playReverse = this.props.navigation.state.params.playReverse;
 
-    let newBoardData = {};
-    if (playReverse) {
-      Object.keys(boardData).forEach((key) => {
-        const value = boardData[key];
-        newBoardData[value] = parseInt(key);
-      });
-    } else {
-      newBoardData = Object.assign({}, boardData);
-    }
-    this.boardData = newBoardData;
-
+    this.boardData = boardData;
     this.boardMaxPosition = 100;
 
     for (let i = 0; i < totalPlayers; i += 1) {
@@ -53,16 +43,17 @@ export default class GameViewPage extends Component {
 
   onPlayCurrentBestSequence = async () => {
     const currentPlayer = this.state.currentPlayer;
-    const currentPlayerPosition = this.state[`player${currentPlayer}Position`];
-
+    let currentPlayerPosition = this.state[`player${currentPlayer}Position`];
     const bestSequence = this.bestSequenceBoard[currentPlayerPosition];
 
     this.setState({ disableDiceRoll: true });
 
     for (let i = 0; i < bestSequence.length - 1; i += 1) {
       const diceSequence = [bestSequence[i]];
+      currentPlayerPosition = this.state[`player${currentPlayer}Position`];
       const positionIndices = this.executeDiceSequence(currentPlayerPosition, diceSequence);
       await this.movePlayerToIndices(currentPlayer, positionIndices);
+      console.log('completed diceSequence', diceSequence);
     }
 
     this.onDiceRoll([bestSequence[bestSequence.length - 1]]);
